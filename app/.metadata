@@ -1,0 +1,12 @@
+# This file configures the tooling used in the Flutter project.
+version:
+  revision: 9cec4b9a621df2a5c58f9de32fc5ca1c9116a96c
+  channel: stable
+project_type: app
+
+# Tracks metadata for the flutter tool.
+migration:
+  platforms:
+    - platform: root
+      create_revision: 9cec4b9a621df2a5c58f9de32fc5ca1c9116a96c
+      base_revision: 9cec4b9a621df2a5c58f9de32fc5ca1c9116a96c
