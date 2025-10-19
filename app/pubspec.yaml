@@ -1,5 +1,7 @@
-name: tnt_app
-description: Placeholder Flutter app configuration for dependency update.
+name: tnt
+description: A new Flutter project for Push-to-talk MVP.
+publish_to: "none"
+version: 1.0.0+1
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -8,7 +10,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  home_widget: ^0.5.0
+  cupertino_icons: ^1.0.8
+  flutter_webrtc: ^0.9.40
+  firebase_messaging: ^14.7.10
+  home_widget: ^0.5.0      # ← 버전 업그레이드(필수)
+  permission_handler: ^11.1.0
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
+  assets: []
