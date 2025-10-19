@@ -1,0 +1,9 @@
+# This file tracks properties of this Flutter project.
+# Used by Flutter tool to assess project changes.
+version:
+  revision: ""
+  channel: ""
+project_type: app
+migration:
+  platforms:
+    - android

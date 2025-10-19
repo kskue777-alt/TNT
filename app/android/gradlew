@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -e
+if [ -n "$GRADLE_HOME" ] && [ -x "$GRADLE_HOME/bin/gradle" ]; then
+  GRADLE_CMD="$GRADLE_HOME/bin/gradle"
+else
+  GRADLE_CMD="gradle"
+fi
+exec "$GRADLE_CMD" "$@"

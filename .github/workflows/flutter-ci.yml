@@ -16,6 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Flutter 프로젝트 존재 여부 확인 (없으면 성공 처리로 스킵)
       - name: Check Flutter project
         id: check_flutter
         run: |
@@ -29,22 +30,23 @@ jobs:
         if: steps.check_flutter.outputs.exists == 'false'
         run: echo "No Flutter app found; skipping build successfully."
 
-      - name: Setup Java (JDK 17)
+      # ↓↓↓ 존재할 때만 실행 ↓↓↓
+      - name: Set up Java (JDK 17)
         if: steps.check_flutter.outputs.exists == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Setup Flutter
+      - name: Set up Flutter
         if: steps.check_flutter.outputs.exists == 'true'
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2' # Flutter 명시 버전
-          channel: 'stable'
+          channel: stable
+          flutter-version: '3.22.2'
           cache: true
 
-      - name: Flutter version
+      - name: Show Flutter version
         if: steps.check_flutter.outputs.exists == 'true'
         run: flutter --version
 
