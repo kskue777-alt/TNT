@@ -1,0 +1,68 @@
+name: Flutter CI
+
+on:
+  push:
+    branches:
+      - main
+      - work
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Flutter
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: flutter-${{ runner.os }}-${{ hashFiles('app/pubspec.lock') }}
+          restore-keys: |
+            flutter-${{ runner.os }}-
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: app/coverage
+          if-no-files-found: warn
+
+  coverage-summary:
+    needs: test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: app/coverage
+
+      - name: Display coverage info
+        run: |
+          ls -R coverage
+          cat coverage/lcov.info | head
