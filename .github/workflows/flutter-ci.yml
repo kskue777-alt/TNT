@@ -1,0 +1,63 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build:
+    name: Build and Analyze
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for Flutter project
+        id: check_pubspec
+        run: |
+          if [ -f app/pubspec.yaml ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Java
+        if: steps.check_pubspec.outputs.exists == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        if: steps.check_pubspec.outputs.exists == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Flutter pub get
+        if: steps.check_pubspec.outputs.exists == 'true'
+        working-directory: app
+        run: flutter pub get
+
+      - name: Flutter analyze
+        if: steps.check_pubspec.outputs.exists == 'true'
+        working-directory: app
+        run: flutter analyze
+
+      - name: Build debug APK
+        if: steps.check_pubspec.outputs.exists == 'true'
+        working-directory: app
+        run: flutter build apk --debug
+
+      - name: Upload debug APK artifact
+        if: steps.check_pubspec.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/app/outputs/flutter-apk/app-debug.apk
+
+      - name: Skip build (no Flutter project detected)
+        if: steps.check_pubspec.outputs.exists != 'true'
+        run: echo "app/pubspec.yaml not found. Skipping Flutter build."
