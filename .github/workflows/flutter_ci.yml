@@ -2,67 +2,87 @@ name: Flutter CI
 
 on:
   push:
-    branches:
-      - main
-      - work
+    branches: [ main, work ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      # app/pubspec.yaml 이 있는지 확인 (없으면 모든 빌드 단계 스킵)
+      - name: Detect Flutter project
+        id: detect
+        run: |
+          if [ -f app/pubspec.yaml ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Skip (no Flutter app in this branch)
+        if: steps.detect.outputs.exists == 'false'
+        run: echo "No Flutter app found; skipping successfully."
+
+      # ↓↓↓ Flutter 프로젝트가 있을 때만 실행 ↓↓↓
+      - name: Set up Java (JDK 17)
+        if: steps.detect.outputs.exists == 'true'
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
-      - name: Cache Flutter
-        uses: actions/cache@v4
+      - name: Set up Flutter
+        if: steps.detect.outputs.exists == 'true'
+        uses: subosito/flutter-action@v2
         with:
-          path: ~/.pub-cache
-          key: flutter-${{ runner.os }}-${{ hashFiles('app/pubspec.lock') }}
-          restore-keys: |
-            flutter-${{ runner.os }}-
+          channel: stable
+          flutter-version: '3.22.2'   # 필요 시 원하는 버전으로 변경 가능
+          cache: true
 
-      - name: Install Flutter dependencies
+      - name: Show Flutter version
+        if: steps.detect.outputs.exists == 'true'
+        run: flutter --version
+
+      - name: Pub get
+        if: steps.detect.outputs.exists == 'true'
         run: flutter pub get
+        working-directory: app
 
-      - name: Run tests
+      - name: Analyze
+        if: steps.detect.outputs.exists == 'true'
+        run: flutter analyze
+        working-directory: app
+
+      - name: Run tests with coverage
+        if: steps.detect.outputs.exists == 'true'
         run: flutter test --coverage
+        working-directory: app
 
       - name: Upload coverage artifact
+        if: steps.detect.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: app/coverage
           if-no-files-found: warn
 
-  coverage-summary:
-    needs: test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
+      - name: Build debug APK
+        if: steps.detect.outputs.exists == 'true'
+        run: flutter build apk --debug
         working-directory: app
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Download coverage artifact
-        uses: actions/download-artifact@v4
+      - name: Upload APK artifact
+        if: steps.detect.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
-          path: app/coverage
-
-      - name: Display coverage info
-        run: |
-          ls -R coverage
-          cat coverage/lcov.info | head
+          name: app-debug-apk
+          path: app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
