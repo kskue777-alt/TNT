@@ -1,22 +1,17 @@
 name: Flutter CI
-
 on:
   pull_request:
   push:
     branches: [ main, codex/** ]
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   build-android:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # Flutter 프로젝트 존재 여부 확인 (없으면 성공 처리로 스킵)
       - name: Check Flutter project
         id: check_flutter
         run: |
@@ -25,19 +20,15 @@ jobs:
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
-
       - name: Skip if not Flutter project
         if: steps.check_flutter.outputs.exists == 'false'
         run: echo "No Flutter app found; skipping build successfully."
-
-      # ↓↓↓ 존재할 때만 실행 ↓↓↓
       - name: Set up Java (JDK 17)
         if: steps.check_flutter.outputs.exists == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
-
       - name: Set up Flutter
         if: steps.check_flutter.outputs.exists == 'true'
         uses: subosito/flutter-action@v2
@@ -45,26 +36,21 @@ jobs:
           channel: stable
           flutter-version: '3.22.2'
           cache: true
-
       - name: Show Flutter version
         if: steps.check_flutter.outputs.exists == 'true'
         run: flutter --version
-
       - name: Flutter pub get
         if: steps.check_flutter.outputs.exists == 'true'
         run: flutter pub get
         working-directory: app
-
       - name: Flutter analyze
         if: steps.check_flutter.outputs.exists == 'true'
         run: flutter analyze
         working-directory: app
-
       - name: Build debug APK
         if: steps.check_flutter.outputs.exists == 'true'
         run: flutter build apk --debug
         working-directory: app
-
       - name: Upload APK artifact
         if: steps.check_flutter.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
