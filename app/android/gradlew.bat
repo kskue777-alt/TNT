@@ -1,0 +1,8 @@
+@ECHO OFF
+SETLOCAL
+IF NOT "%GRADLE_HOME%"=="" (
+  SET GRADLE_CMD=%GRADLE_HOME%\bin\gradle
+) ELSE (
+  SET GRADLE_CMD=gradle
+)
+"%GRADLE_CMD%" %*
