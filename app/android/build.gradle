@@ -1,19 +1,29 @@
-allprojects {
+// 루트 build.gradle — 중복 repository 제거 버전
+buildscript {
     repositories {
-        google()
-        mavenCentral()
+        // 🔥 google(), mavenCentral() 제거
+        // settings.gradle에서 이미 관리됨
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.1.2")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0")
     }
 }
 
-rootProject.buildDir = '../build'
+allprojects {
+    repositories {
+        // 🔥 여기서도 제거
+    }
+}
+
+rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
-
 subprojects {
-    project.evaluationDependsOn(':app')
+    project.evaluationDependsOn(":app")
 }
 
 tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    delete(rootProject.buildDir)
 }
