@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -e
+
+if command -v gradle >/dev/null 2>&1; then
+  exec gradle "$@"
+fi
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+WRAPPER_JAR="$DIR/gradle/wrapper/gradle-wrapper.jar"
+
+if [ ! -f "$WRAPPER_JAR" ]; then
+  echo "Gradle executable not found. Install Gradle or provide $WRAPPER_JAR" >&2
+  exit 1
+fi
+
+exec "${JAVA_HOME:-/usr/bin/java}" -jar "$WRAPPER_JAR" "$@"

@@ -1,0 +1,49 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.pingtalk">
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING"/>
+
+    <application
+        android:label="pingtalk"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        
+        <!-- 수신(재생) 서비스 -->
+        <service
+            android:name="com.example.pingtalk.ptt.PlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <!-- 송신(녹음) 서비스 -->
+        <service
+            android:name="com.example.pingtalk.ptt.CaptureService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+
+        <!-- PTT 미니 액티비티(전면 올려 while-in-use 충족) -->
+        <activity
+            android:name="com.example.pingtalk.ptt.PttActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <!-- 홈 위젯 Provider 등록 (home_widget 패키지용) -->
+        <receiver android:name="es.antonborri.home_widget.HomeWidgetProvider" android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/home_widget_provider"/>
+        </receiver>
+
+    </application>
+</manifest>
