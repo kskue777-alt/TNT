@@ -1,0 +1,28 @@
+name: pingtalk
+description: Push-to-talk communication prototype built with Flutter.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.24.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_webrtc: ^0.9.49
+  audio_service: ^0.18.13
+  just_audio: ^0.9.42
+  permission_handler: ^11.3.1
+  home_widget: ^0.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/

@@ -1,0 +1,16 @@
+include ':app'
+
+def flutterProjectRoot = rootDir.parentFile.toPath()
+
+def pluginsFile = new File(flutterProjectRoot.toFile(), '.flutter-plugins')
+if (pluginsFile.exists()) {
+    pluginsFile.eachLine { line ->
+        def plugin = line.split('=')
+        if (plugin.length == 2) {
+            def pluginName = plugin[0]
+            def pluginPath = plugin[1]
+            include ":$pluginName"
+            project(":$pluginName").projectDir = new File(pluginPath + '/android')
+        }
+    }
+}
